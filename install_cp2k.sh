@@ -1,4 +1,4 @@
-# Install CP2K in Cartesius using intel compilers, thanks andreas.gloess@chem.uzh.ch
+# Scosseddu -- Install CP2K in Cartesius using intel compilers, thanks Andreas.Gloess
 
 function print_arch () {
 
