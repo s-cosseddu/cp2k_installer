@@ -17,7 +17,7 @@ CFLAGS   = $(DFLAGS)
 FCFLAGS  = $(DFLAGS) -O2 -g -traceback -fpp -free \
            -I$(MKLROOT)/include -I$(MKLROOT)/include/fftw
 FCFLAGS2 = $(DFLAGS) -O1 -g -traceback -fpp -free \
-           -I$(MKLROOT)/include -I$(MKLROOT)/include/fftw
+           -I$(MKLROOT)/include -I$(MKLROOT)/include/fftw -I$(CP2KDIR)/libxc/libxc-2.2.2/compiled/include
 LDFLAGS  = $(FCFLAGS) -static-intel 
 LIBS     = $(MKLROOT)/lib/intel64/libmkl_scalapack_lp64.a \
 	  -Wl,--start-group  $(MKLROOT)/lib/intel64/libmkl_intel_lp64.a \
@@ -26,8 +26,8 @@ LIBS     = $(MKLROOT)/lib/intel64/libmkl_scalapack_lp64.a \
 	   $(MKLROOT)/lib/intel64/libmkl_blacs_intelmpi_lp64.a -Wl,--end-group \
 	   -lpthread -lm \
 	   -lstdc++ \
-	   -L/home/cosseddu/Programmi/CP2K/test_comp/cp2k/libint/libint-release-1-1-6/compiled/lib -lderiv -lint \
-	    -L/home/cosseddu/Programmi/CP2K/test_comp/cp2k/libxc/libxc-2.2.2/compiled/lib -lxcf90 -lxc 
+	   -L$(CP2KDIR)/libint/libint-release-1-1-6/compiled/lib -lderiv -lint \
+	   -L$(CP2KDIR)/libxc/libxc-2.2.2/compiled/lib -lxcf90 -lxc 
 	       
 mp2_optimize_ri_basis.o: mp2_optimize_ri_basis.F
 			 $(FC) -c $(FCFLAGS2) $<
@@ -46,8 +46,8 @@ function writeslurm () {
 #SBATCH --tasks-per-node $1
 #SBATCH -t 1:00:00
 
-module unload mkl mpi fortran c
-module load mkl/11.2.2 mpi/impi/5.0.3.048 fortran/intel/15.0.0 c/intel/15.0.0 compilerwrappers
+module purge
+module load bull surfsara mkl/11.2.2 mpi/impi/5.0.3.048 fortran/intel/15.0.0 c/intel/15.0.0 compilerwrappers
 
 make -j $1 ARCH=cartesius VERSION=popt
 EOF
@@ -56,7 +56,7 @@ EOF
 
 
 ROOT=$PWD
-CP2KDIR=${ROOT}/cp2k
+export CP2KDIR=${ROOT}/cp2k
 NPROCS=8
 
 
@@ -79,7 +79,7 @@ aclocal -I lib/autoconf/
 autoconf 
 mkdir obj_compile
 cd obj_compile
-../configure --prefix=/home/cosseddu/Programmi/CP2K/test_comp/cp2k/libint/libint-release-1-1-6/compiled --enable-static CC='icc' CFLAGS='-O2' CXX='icpc' CXXFLAGS='-O2'
+../configure --prefix=${CP2KDIR}/libint/libint-release-1-1-6/compiled --enable-static CC='icc' CFLAGS='-O2' CXX='icpc' CXXFLAGS='-O2'
 make -j $NPROCS
 make install
 cd $CP2KDIR
@@ -95,7 +95,7 @@ cd libxc-2.2.2
 mkdir obj_compile
 cd obj_compile
 pwd 
-../configure --prefix=/home/cosseddu/Programmi/CP2K/test_comp/cp2k/libxc/libxc-2.2.2/compiled --enable-static CC=icc CFLAGS='-O2' FC='ifort' FCFLAGS='-O2'
+../configure --prefix=${CP2KDIR}/cp2k/libxc/libxc-2.2.2/compiled --enable-static CC=icc CFLAGS='-O2' FC='ifort' FCFLAGS='-O2'
 make -j $NPROCS
 make install
 cd $CP2KDIR
